@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Желілік хаттамалар - Онлайн тест</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 650px;
+            padding: 30px;
+            position: relative;
+        }
+
+        h2, h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #3b82f6;
+        }
+
+        .btn {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-teacher {
+            background-color: #dc2626;
+            margin-top: 10px;
+        }
+
+        .btn-teacher:hover {
+            background-color: #b91c1c;
+        }
+
+        .question-card {
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2563eb;
+        }
+
+        .options label {
+            display: block;
+            background: white;
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            font-weight: normal;
+            transition: background 0.2s;
+        }
+
+        .options label:hover {
+            background: #eff6ff;
+        }
+
+        .options input {
+            margin-right: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+        }
+
+        .teacher-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 13px;
+            color: #2563eb;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .score-box {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 20px 0;
+        }
+
+        /* Пароль сұрайтын модальді терезе */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .modal h3 {
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-secondary {
+            background-color: #64748b;
+        }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+
+        .error-msg {
+            color: #dc2626;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <span class="teacher-toggle" onclick="openPasswordModal()">🔒 Мұғалім режимі</span>
+
+    <!-- 1. АТЫ-ЖӨНІН ЕНГІЗУ -->
+    <div id="login-screen">
+        <h2>Желілік хаттамалар тақырыбы бойынша тест</h2>
+        <div class="input-group">
+            <label for="student-name">Оқушының аты-жөнін енгізіңіз:</label>
+            <input type="text" id="student-name" placeholder="Мысалы: Арман Есенов" required>
+        </div>
+        <button class="btn" onclick="startTest()">Тестті бастау</button>
+    </div>
+
+    <!-- 2. ТЕСТ СҰРАҚТАРЫ -->
+    <div id="test-screen" class="hidden">
+        <h3 id="welcome-msg"></h3>
+        <form id="quiz-form">
+            
+            <div class="question-card">
+                <p><strong>1. Деректерді кішкентай пакеттерге бөліп, олардың зақымдалмай, толық және дұрыс ретпен жетуін қадағалайтын хаттама қайсысы?</strong></p>
+                <div class="options">
+                    <label><input type="radio" name="q1" value="0"> FTP</label>
+                    <label><input type="radio" name="q1" value="1"> TCP</label>
+                    <label><input type="radio" name="q1" value="0"> IP</label>
+                    <label><input type="radio" name="q1" value="0"> HTTPS</label>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <p><strong>2. Веб-сайттармен жұмыс істегенде құпия сөздер мен деректерді шифрлап, қауіпсіз тасымалдауды қамтамасыз ететін хаттама:</strong></p>
+                <div class="options">
+                    <label><input type="radio" name="q2" value="0"> FTP</label>
+                    <label><input type="radio" name="q2" value="0"> IP</label>
+                    <label><input type="radio" name="q2" value="1"> HTTPS</label>
+                    <label><input type="radio" name="q2" value="0"> TCP</label>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <p><strong>3. Серверге үлкен файлдарды жүктеу (upload) немесе серверден файлдарды жүктеп алу (download) үшін арнайы қолданылатын хаттама:</strong></p>
+                <div class="options">
+                    <label><input type="radio" name="q3" value="1"> FTP</label>
+                    <label><input type="radio" name="q3" value="0"> HTTPS</label>
+                    <label><input type="radio" name="q3" value="0"> IP</label>
+                    <label><input type="radio" name="q3" value="0"> TCP</label>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <p><strong>4. Жергілікті немесе глобалды желідегі әрбір құрылғыға берілетін бірегей сандық мекенжай қалай аталады?</strong></p>
+                <div class="options">
+                    <label><input type="radio" name="q4" value="0"> MAC-мекенжай</label>
+                    <label><input type="radio" name="q4" value="1"> IP-мекенжай</label>
+                    <label><input type="radio" name="q4" value="0"> Web-мекенжай</label>
+                    <label><input type="radio" name="q4" value="0"> URL-мекенжай</label>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <p><strong>5. Интернет желісінің базалық негізін құрайтын және деректерді адрестеу мен тасымалдауды реттейтін басты хаттамалар жиынтығы (стек):</strong></p>
+                <div class="options">
+                    <label><input type="radio" name="q5" value="0"> HTML/CSS</label>
+                    <label><input type="radio" name="q5" value="1"> TCP/IP</label>
+                    <label><input type="radio" name="q5" value="0"> FTP/HTTPS</label>
+                    <label><input type="radio" name="q5" value="0"> IP/DNS</label>
+                </div>
+            </div>
+
+            <button type="button" class="btn" onclick="finishTest()">Тестті аяқтау</button>
+        </form>
+    </div>
+
+    <!-- 3. ОҚУШЫ НӘТИЖЕСІ -->
+    <div id="result-screen" class="hidden">
+        <h2>Тест аяқталды!</h2>
+        <div class="score-box" id="score-text"></div>
+        <p style="text-align: center; color: #475569;">Сіздің нәтижеңіз мұғалімнің дерекқорына сақталды.</p>
+    </div>
+
+    <!-- 4. МҰҒАЛІМ КЕСТЕСІ -->
+    <div id="teacher-screen" class="hidden">
+        <h2>Мұғалім кабинеті</h2>
+        <p>Барлық оқушылардың нәтижелері:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Аты-жөні</th>
+                    <th>Ұпайы</th>
+                    <th>Уақыты</th>
+                </tr>
+            </thead>
+            <tbody id="results-table">
+            </tbody>
+        </table>
+        <br>
+        <button class="btn btn-secondary" onclick="hideTeacherMode()">Кері қайту</button>
+        <button class="btn btn-teacher" onclick="clearResults()">Нәтижелерді тазалау</button>
+    </div>
+</div>
+
+<!-- 5. ПАРОЛЬ СҰРАЙТЫН МОДАЛЬДІ ТЕРЕЗЕ -->
+<div id="password-modal" class="modal-overlay hidden">
+    <div class="modal">
+        <h3>Мұғалім паролін енгізіңіз</h3>
+        <input type="password" id="teacher-pass-input" placeholder="Пароль" onkeypress="handleKeyPress(event)">
+        <p id="error-msg" class="error-msg">Қате пароль! Қайтадан байқап көрмекшісіз бе?</p>
+        <div class="modal-buttons">
+            <button class="btn" onclick="checkTeacherPassword()">Кіру</button>
+            <button class="btn btn-secondary" onclick="closePasswordModal()">Бас тарту</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // МҰҒАЛІМ ПАРОЛІ (Осы жерден парольді ауыстыра аласыз)
+    const TEACHER_PASSWORD = "1234";
+
+    let currentStudent = "";
+
+    function startTest() {
+        const nameInput = document.getElementById("student-name").value.trim();
+        if (nameInput === "") {
+            alert("Өтініш, аты-жөніңізді енгізіңіз!");
+            return;
+        }
+        currentStudent = nameInput;
+        document.getElementById("welcome-msg").innerText = "Сәттілік, " + currentStudent + "!";
+        document.getElementById("login-screen").classList.add("hidden");
+        document.getElementById("test-screen").classList.remove("hidden");
+    }
+
+    function finishTest() {
+        let score = 0;
+        const total = 5;
+
+        for (let i = 1; i <= total; i++) {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            if (selected && selected.value === "1") {
+                score++;
+            }
+        }
+
+        saveResult(currentStudent, score, total);
+
+        document.getElementById("test-screen").classList.add("hidden");
+        document.getElementById("result-screen").classList.remove("hidden");
+        document.getElementById("score-text").innerText = `${currentStudent}: ${score} / ${total} ұпай`;
+    }
+
+    function saveResult(name, score, total) {
+        let results = JSON.parse(localStorage.getItem("quiz_results")) || [];
+        const date = new Date().toLocaleTimeString('kk-KZ', { hour: '2-digit', minute: '2-digit' });
+        
+        results.push({
+            name: name,
+            score: `${score}/${total}`,
+            time: date
+        });
+
+        localStorage.setItem("quiz_results", JSON.stringify(results));
+    }
+
+    // Модальді терезені басқару
+    function openPasswordModal() {
+        document.getElementById("password-modal").classList.remove("hidden");
+        document.getElementById("teacher-pass-input").focus();
+    }
+
+    function closePasswordModal() {
+        document.getElementById("password-modal").classList.add("hidden");
+        document.getElementById("teacher-pass-input").value = "";
+        document.getElementById("error-msg").style.display = "none";
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === "Enter") {
+            checkTeacherPassword();
+        }
+    }
+
+    // Парольді тексеру
+    function checkTeacherPassword() {
+        const enteredPass = document.getElementById("teacher-pass-input").value;
+        if (enteredPass === TEACHER_PASSWORD) {
+            closePasswordModal();
+            showTeacherScreen();
+        } else {
+            document.getElementById("error-msg").style.display = "block";
+            document.getElementById("teacher-pass-input").value = "";
+        }
+    }
+
+    function showTeacherScreen() {
+        document.getElementById("login-screen").classList.add("hidden");
+        document.getElementById("test-screen").classList.add("hidden");
+        document.getElementById("result-screen").classList.add("hidden");
+        document.getElementById("teacher-screen").classList.remove("hidden");
+        loadTeacherResults();
+    }
+
+    function hideTeacherMode() {
+        document.getElementById("teacher-screen").classList.add("hidden");
+        document.getElementById("login-screen").classList.remove("hidden");
+    }
+
+    function loadTeacherResults() {
+        const tableBody = document.getElementById("results-table");
+        tableBody.innerHTML = "";
+        let results = JSON.parse(localStorage.getItem("quiz_results")) || [];
+
+        if (results.length === 0) {
+            tableBody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Әлі ешқандай оқушы тест тапсырмады</td></tr>";
+            return;
+        }
+
+        results.forEach((item, index) => {
+            let row = `<tr>
+                <td>${index + 1}</td>
+                <td>${item.name}</td>
+                <td><strong>${item.score}</strong></td>
+                <td>${item.time}</td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+    }
+
+    function clearResults() {
+        if (confirm("Барлық нәтижелерді өшіргіңіз келе ме?")) {
+            localStorage.removeItem("quiz_results");
+            loadTeacherResults();
+        }
+    }
+</script>
+
+</body>
+</html>
